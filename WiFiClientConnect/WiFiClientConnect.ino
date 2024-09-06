@@ -18,6 +18,8 @@ int off = 20;
 int on = 150;
 int btn = 33;
 int flash = 15;
+int toneFrequency = 4000;
+int toneLength = 5;
 TaskHandle_t Task1;
 TaskHandle_t Task2;
 void Task1code( void *pvParameters ) {
@@ -46,8 +48,8 @@ else{
   analogWrite(A5,off);
   delay(5);
 }
-  tone(A11, 4000);//following is code for the click
-  delay(2);
+  tone(A11, toneFrequency);//following is code for the click
+  delay(toneLength);
   noTone(A11);
   //Serial.println(reading);
   //analogWrite(A5,map(reading,-30,-90,255,0));  //testing, use for led brightness in place of blinking
@@ -79,9 +81,7 @@ void setup() {
   pinMode(flash, OUTPUT);
   pinMode(A8,OUTPUT);
   digitalWrite(flash, LOW);
-  tone(A11, 4000);//following is code for the click
-  delay(2);
-  noTone(A11);
+
   // We start by connecting to a WiFi network
   // To debug, please enable Core Debug Level to Verbose
 
