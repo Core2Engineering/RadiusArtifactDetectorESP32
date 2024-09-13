@@ -1,3 +1,5 @@
+
+
 /* Wi-Fi STA Connect and Disconnect Example
 
    This example code is in the Public Domain (or CC0 licensed, at your option.)
@@ -10,13 +12,14 @@
 
 */
 #include <WiFi.h>
-
+#define A8 15
+#define btn 33
+#define A5 4
+#define A11 12
 const char *ssid = "ArtifactDetector";
 const char *password = "bruhdontconnecttothis556";
-
 int off = 20;
 int on = 150;
-int btn = 33;
 int flash = 15;
 int toneFrequency = 4000;
 int toneLength = 5;
@@ -147,4 +150,5 @@ void setup() {
   }
 }
 
-void loop() { }
+void loop() { 
+}
