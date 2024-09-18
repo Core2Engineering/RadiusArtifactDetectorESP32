@@ -33,7 +33,7 @@ void Task1code( void *pvParameters ) {
     avg += WiFi.RSSI();
   }
   reading = avg / 20;
-  //reading = map(reading, -30, -100, 0, 100);
+  Serial.println(reading);
   if (reading < -60){
   analogWrite(A5,on);
   delay(abs(map(reading,-61,-90,50,100)));
