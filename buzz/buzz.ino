@@ -1,3 +1,5 @@
+#include <Adafruit_LIS3DH.h>
+
 /*
 
 
@@ -5,6 +7,7 @@
 */
 
 #include <WiFi.h>
+#include <Adafruit_NeoPixel.h>
 #define btn 5
 #define piezo A2
 #define flicker A3
@@ -17,12 +20,19 @@ int toneFrequency = 4000;
 int toneLength = 5;
 bool CoolDown = false;
 int CoolCount = 0;
-int CoolIncrement = 100;
+int CoolIncrement = 10;
+int i = 0;
+bool FlashNow = false;
+
+Adafruit_LIS3DH lis = Adafruit_LIS3DH();
+Adafruit_NeoPixel Pixel(1, 33);
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-
+  Pixel.begin();
+  Pixel.setPixelColor(0, 0, 255, 0);
+  Pixel.show();
   //delay(10);
   pinMode(flicker, OUTPUT);
   pinMode(piezo, OUTPUT);
@@ -90,6 +100,10 @@ void loop() {
   }
   reading = avg / 20;
   //Serial.println(reading);
+  sensors_event_t event;
+  lis.getEvent(&event);
+  int xyz = (abs((int)event.acceleration.x) + abs((int)event.acceleration.y) + abs((int)event.acceleration.z)) / 3;
+  Serial.println(xyz);
   if (reading < -60) {
     analogWrite(flicker, on);
     delay(abs(map(reading, -61, -90, 50, 100)));
@@ -109,33 +123,44 @@ void loop() {
   tone(piezo, toneFrequency);  //following is code for the click
   delay(toneLength);
   noTone(piezo);
-  if ((LOW == digitalRead(btn)) && (CoolDown = false)) {  //-- FLASH CODE --//
+  if ((digitalRead(btn) == false && CoolDown == false) && FlashNow == false) {  //-- FLASH CODE --//
+    i = 255;
+    FlashNow = true;
     digitalWrite(flash, HIGH);
     delayMicroseconds(100000);
-    for (int i = 255; i >= 0; i--) {
-      analogWrite(flash, i);
-      //Serial.println(i);
-      delayMicroseconds(3000);
-    }
-    CoolDown = true;
+    
   }
-  if (bool CoolDown = true) {
-    delay(1);
+  if (i > 0 && FlashNow == true) {
+      analogWrite(flash, i);
+      i-=15;
+      //Serial.println(i);
+      //delayMicroseconds(3000);
+    }
+    if (i == 0 && FlashNow == true) {
+      analogWrite(flash, i);
+      FlashNow = false;
+      CoolDown = true;
+    }
+  if (CoolDown == true) {
+    //delay(1);
     CoolCount++;
-    if (CoolCount = (CoolIncrement * 1)) {
+    if (CoolCount == (CoolIncrement * 1)) {
       //one light!
     }
-    if (CoolCount = (CoolIncrement * 2)) {
+    if (CoolCount == (CoolIncrement * 2)) {
       //two light!
     }
-    if (CoolCount = (CoolIncrement * 3)) {
+    if (CoolCount == (CoolIncrement * 3)) {
       //three light!
     }
     if (CoolCount == (CoolIncrement * 4)) {
       //four light!
       CoolDown = false;
+      CoolCount = 0;
     }
   }
+  //erial.println(i);
+  //Serial.println(CoolCount);
   //Serial.println(reading);
   //analogWrite(flicker,map(reading,-30,-90,255,0));  //testing, use for led brightness in place of blinking
   //delay(100);
