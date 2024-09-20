@@ -8,10 +8,14 @@
 
 #include <WiFi.h>
 #include <Adafruit_NeoPixel.h>
-#define btn 5
-#define piezo A2
-#define flicker A3
-#define flash A4
+#define BUTTON_ONE 5
+#define PIEZO A2
+#define FLICKER A3
+#define FLASH A4
+#define COOL_ONE 13
+#define COOL_TWO 12
+#define COOL_THREE 11
+#define COOL_FOUR 10
 const char *ssid = "ArtifactDetector";
 const char *password = "bruhdontconnecttothis556";
 int off = 20;
@@ -28,17 +32,23 @@ Adafruit_LIS3DH lis = Adafruit_LIS3DH();
 Adafruit_NeoPixel Pixel(1, 33);
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
   Pixel.begin();
   Pixel.setPixelColor(0, 0, 255, 0);
   Pixel.show();
-  //delay(10);
-  pinMode(flicker, OUTPUT);
-  pinMode(piezo, OUTPUT);
-  pinMode(btn, INPUT_PULLUP);
-  pinMode(flash, OUTPUT);
-  digitalWrite(flash, LOW);
+  pinMode(FLICKER, OUTPUT);
+  pinMode(PIEZO, OUTPUT);
+  pinMode(BUTTON_ONE, INPUT_PULLUP);
+  pinMode(FLASH, OUTPUT);
+  pinMode(COOL_ONE, OUTPUT);
+  pinMode(COOL_TWO, OUTPUT);
+  pinMode(COOL_THREE, OUTPUT);
+  pinMode(COOL_FOUR, OUTPUT);
+  digitalWrite(FLASH, LOW);
+  digitalWrite(COOL_ONE, LOW);
+  digitalWrite(COOL_TWO, LOW);
+  digitalWrite(COOL_THREE, LOW);
+  digitalWrite(COOL_FOUR, LOW);
 
   // We start by connecting to a WiFi network
   // To debug, please enable Core Debug Level to Verbose
@@ -55,7 +65,6 @@ void setup() {
   // Will try for about 10 seconds (20x 500ms)
   int tryDelay = 500;
   int numberOfTries = 20;
-  //attachInterrupt(digitalPinToInterrupt(btn), flashLed, RISING);
   while (true) {
 
     switch (WiFi.status()) {
@@ -92,80 +101,76 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
   int avg = 0;
   int reading = 0;
   for (int i = 0; i <= 20; i++) {
     avg += WiFi.RSSI();
   }
   reading = avg / 20;
-  //Serial.println(reading);
+
   sensors_event_t event;
   lis.getEvent(&event);
   int xyz = (abs((int)event.acceleration.x) + abs((int)event.acceleration.y) + abs((int)event.acceleration.z)) / 3;
   Serial.println(xyz);
   if (reading < -60) {
-    analogWrite(flicker, on);
+    analogWrite(FLICKER, on);
     delay(abs(map(reading, -61, -90, 50, 100)));
-    analogWrite(flicker, off);
+    analogWrite(FLICKER, off);
     delay(abs(map(reading, -61, -90, 50, 100)));
   } else if (reading < -30) {
-    analogWrite(flicker, on);
+    analogWrite(FLICKER, on);
     delay(abs(map(reading, -30, -60, 10, 50)));
-    analogWrite(flicker, off);
+    analogWrite(FLICKER, off);
     delay(abs(map(reading, -30, -60, 10, 50)));
   } else {
-    analogWrite(flicker, on);
+    analogWrite(FLICKER, on);
     delay(5);
-    analogWrite(flicker, off);
+    analogWrite(FLICKER, off);
     delay(5);
   }
-  tone(piezo, toneFrequency);  //following is code for the click
+  tone(PIEZO, toneFrequency);  //following is code for the click
   delay(toneLength);
-  noTone(piezo);
-  if ((digitalRead(btn) == false && CoolDown == false) && FlashNow == false) {  //-- FLASH CODE --//
+  noTone(PIEZO);
+  if ((digitalRead(BUTTON_ONE) == false && CoolDown == false) && FlashNow == false) {  //-- FLASH CODE --//
     i = 255;
     FlashNow = true;
-    digitalWrite(flash, HIGH);
+    digitalWrite(FLASH, HIGH);
+    digitalWrite(COOL_ONE, LOW);
+    digitalWrite(COOL_TWO, LOW);
+    digitalWrite(COOL_THREE, LOW);
+    digitalWrite(COOL_FOUR, LOW);
     delayMicroseconds(100000);
-    
   }
   if (i > 0 && FlashNow == true) {
-      analogWrite(flash, i);
-      i-=15;
-      //Serial.println(i);
-      //delayMicroseconds(3000);
-    }
-    if (i == 0 && FlashNow == true) {
-      analogWrite(flash, i);
-      FlashNow = false;
-      CoolDown = true;
-    }
+    analogWrite(FLASH, i);
+    i -= 15;
+  }
+  if (i == 0 && FlashNow == true) {
+    analogWrite(FLASH, i);
+    FlashNow = false;
+    CoolDown = true;
+  }
   if (CoolDown == true) {
-    //delay(1);
+
     CoolCount++;
     if (CoolCount == (CoolIncrement * 1)) {
       //one light!
+      digitalWrite(COOL_ONE, HIGH);
     }
     if (CoolCount == (CoolIncrement * 2)) {
       //two light!
+      digitalWrite(COOL_TWO, HIGH);
     }
     if (CoolCount == (CoolIncrement * 3)) {
       //three light!
+      digitalWrite(COOL_THREE, HIGH);
     }
     if (CoolCount == (CoolIncrement * 4)) {
       //four light!
+      digitalWrite(COOL_FOUR, HIGH);
       CoolDown = false;
       CoolCount = 0;
     }
   }
-  //erial.println(i);
-  //Serial.println(CoolCount);
-  //Serial.println(reading);
-  //analogWrite(flicker,map(reading,-30,-90,255,0));  //testing, use for led brightness in place of blinking
-  //delay(100);
 }
-
-/*void flashLed() {
-
-}*/
