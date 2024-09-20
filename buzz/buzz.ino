@@ -1,4 +1,6 @@
 #include <Adafruit_LIS3DH.h>
+#include <WiFi.h>
+#include <Adafruit_NeoPixel.h>
 
 /*
 
@@ -6,8 +8,6 @@
 
 */
 
-#include <WiFi.h>
-#include <Adafruit_NeoPixel.h>
 #define BUTTON_ONE 5
 #define PIEZO A2
 #define FLICKER A3
