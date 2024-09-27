@@ -1,6 +1,6 @@
 #include <Adafruit_LIS3DH.h>
 #include <WiFi.h>
-//#include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoPixel.h>
 #include <Adafruit_Sensor.h>
 
 /*
@@ -11,13 +11,10 @@ WHEN RESETTING ARDUINO LEAVE STILL TO CALIBRATE
 
 #define MULTIPLIER 2
 
-#define BUTTON_ONE 5
-#define BUTTON_TWO 6
-#define BUTTON_THREE 9
+#define BUTTON_ONE A2
+#define BUTTON_TWO A1
+#define BUTTON_THREE A0
 #define PIEZO A3
-#define REED A2 
-#define GEEN A3
-#define BLEU A4
 //#define FLICKER A3
 #define FLASH A5
 #define COOL_ONE 13
@@ -44,11 +41,11 @@ bool FlashNow = false;
 float X = 0.0f;
 float Y = 0.0f;
 float Z = 0.0f;
-int offset = 0;
+long offset = 0;
 bool mute = false;
 
 Adafruit_LIS3DH lis = Adafruit_LIS3DH();
-//Adafruit_NeoPixel Pixel(1, 33);
+Adafruit_NeoPixel Pixel(1, 9);
 int XYZ() {
   sensors_event_t event;
   lis.getEvent(&event);
@@ -60,7 +57,6 @@ int XYZ() {
   Z = abs(Z);
   Z = Z - offset;
   Z = abs(Z);
-  Serial.println(Z);
   int XYZ = (X + Y + Z);
   XYZ = XYZ / 3;
 
@@ -83,10 +79,6 @@ void setup() {
   pinMode(COOL_TWO, OUTPUT);
   pinMode(COOL_THREE, OUTPUT);
   pinMode(COOL_FOUR, OUTPUT);
-  pinMode(REED, OUTPUT);
-  pinMode(GEEN, OUTPUT);
-  pinMode(BLEU, OUTPUT);
-  analogWrite(REED, 0);
   digitalWrite(FLASH, LOW);
   digitalWrite(COOL_ONE, LOW);
   digitalWrite(COOL_TWO, LOW);
@@ -96,7 +88,7 @@ void setup() {
   while (i < 100) {
     sensors_event_t event;
     lis.getEvent(&event);
-    int Z = int(trunc(event.acceleration.z * 100));
+    int Z = int(trunc(event.acceleration.z) * 100);
     offset += Z;
     i++;
   }
@@ -161,8 +153,11 @@ void loop() {
   reading = avg / 20;
 
   int blue = XYZ();
+  Serial.print(blue);
+  Serial.print(" , ");
   blue = blue - offset;
-  blue = blue * 100;
+  //blue = blue * 100;
+  Serial.println(blue);
   //Serial.println(XYZ());
   /*
   Serial.print("\t\tX: "); Serial.print(event.acceleration.x);
@@ -174,42 +169,30 @@ void loop() {
 
   if (reading < -60) {
     //analogWrite(FLICKER, on);
-    //Pixel.setPixelColor(0, 0, 255 - blue, blue);
-    //Pixel.show();
-    analogWrite(BLEU, (255 - blue));
-    analogWrite(GEEN, blue);
+    Pixel.setPixelColor(0, 0, 255 - blue, blue);
+    Pixel.show();
     delay(abs(map(reading, -61, -90, 50, 100)) * MULTIPLIER);
     //analogWrite(FLICKER, off);
-    //Pixel.setPixelColor(0, 0, 0, 0);
-    //Pixel.show();
-    analogWrite(BLEU, 0);
-    analogWrite(GEEN, 0);
+    Pixel.setPixelColor(0, 0, 0, 0);
+    Pixel.show();
     delay(abs(map(reading, -61, -90, 50, 100)) * MULTIPLIER);
   } else if (reading < -30) {
     //analogWrite(FLICKER, on);
-    //Pixel.setPixelColor(0, 0, 255 - blue, blue);
-    //Pixel.show();
-    analogWrite(BLEU, (255 - blue));
-    analogWrite(GEEN, blue);
+    Pixel.setPixelColor(0, 0, 255 - blue, blue);
+    Pixel.show();
     delay(abs(map(reading, -30, -60, 10, 50)) * MULTIPLIER);
     //analogWrite(FLICKER, off);
-    //Pixel.setPixelColor(0, 0, 0, 0);
-    //Pixel.show();
-    analogWrite(BLEU, 0);
-    analogWrite(GEEN, 0);
+    Pixel.setPixelColor(0, 0, 0, 0);
+    Pixel.show();
     delay(abs(map(reading, -30, -60, 10, 50)) * MULTIPLIER);
   } else {
     //analogWrite(FLICKER, on);
-    //Pixel.setPixelColor(0, 0, 255 - blue, blue);
-    //Pixel.show();
-    analogWrite(BLEU, (255 - blue));
-    analogWrite(GEEN, blue);
+    Pixel.setPixelColor(0, 0, 255 - blue, blue);
+    Pixel.show();
     delay(5);
     //analogWrite(FLICKER, off);
-    //Pixel.setPixelColor(0, 0, 0, 0);
-    //Pixel.show();
-    analogWrite(GEEN, 0);
-    analogWrite(BLEU, 0);
+    Pixel.setPixelColor(0, 0, 0, 0);
+    Pixel.show();
     delay(5);
   }
 
