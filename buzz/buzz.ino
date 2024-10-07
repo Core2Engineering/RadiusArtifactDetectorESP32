@@ -45,7 +45,7 @@ long offset = 0;
 bool mute = false;
 
 Adafruit_LIS3DH lis = Adafruit_LIS3DH();
-Adafruit_NeoPixel Pixel(1, 9);
+Adafruit_NeoPixel Pixel(1, 9, NEO_RGB + NEO_KHZ800);
 int XYZ() {
   sensors_event_t event;
   lis.getEvent(&event);
@@ -153,11 +153,11 @@ void loop() {
   reading = avg / 20;
 
   int blue = XYZ();
-  Serial.print(blue);
-  Serial.print(" , ");
-  blue = blue - offset;
-  //blue = blue * 100;
   Serial.println(blue);
+  //Serial.print(" , ");
+  //blue = blue - offset;
+  //blue = blue * 100;
+  //Serial.println(blue);
   //Serial.println(XYZ());
   /*
   Serial.print("\t\tX: "); Serial.print(event.acceleration.x);
@@ -169,30 +169,33 @@ void loop() {
 
   if (reading < -60) {
     //analogWrite(FLICKER, on);
-    Pixel.setPixelColor(0, 0, 255 - blue, blue);
+    Pixel.setPixelColor(0, 0, (int)trunc(map(blue, 0, 750, 255, 0)), (int)trunc(map(blue, 0, 750, 0, 255)));
     Pixel.show();
     delay(abs(map(reading, -61, -90, 50, 100)) * MULTIPLIER);
     //analogWrite(FLICKER, off);
     Pixel.setPixelColor(0, 0, 0, 0);
     Pixel.show();
+    Pixel.clear();
     delay(abs(map(reading, -61, -90, 50, 100)) * MULTIPLIER);
   } else if (reading < -30) {
     //analogWrite(FLICKER, on);
-    Pixel.setPixelColor(0, 0, 255 - blue, blue);
+    Pixel.setPixelColor(0, 0, (int)trunc(map(blue, 0, 750, 255, 0)), (int)trunc(map(blue, 0, 750, 0, 255)));
     Pixel.show();
     delay(abs(map(reading, -30, -60, 10, 50)) * MULTIPLIER);
     //analogWrite(FLICKER, off);
     Pixel.setPixelColor(0, 0, 0, 0);
     Pixel.show();
+    Pixel.clear();
     delay(abs(map(reading, -30, -60, 10, 50)) * MULTIPLIER);
   } else {
     //analogWrite(FLICKER, on);
-    Pixel.setPixelColor(0, 0, 255 - blue, blue);
+    Pixel.setPixelColor(0, 0, (int)trunc(map(blue, 0, 750, 255, 0)), (int)trunc(map(blue, 0, 750, 0, 255)));
     Pixel.show();
     delay(5);
     //analogWrite(FLICKER, off);
     Pixel.setPixelColor(0, 0, 0, 0);
     Pixel.show();
+    Pixel.clear();
     delay(5);
   }
 
