@@ -11,9 +11,9 @@ WHEN RESETTING ARDUINO LEAVE STILL TO CALIBRATE
 
 #define MULTIPLIER 2
 
-#define BUTTON_ONE A2
+#define BUTTON_ONE A0
 #define BUTTON_TWO A1
-#define BUTTON_THREE A0
+#define BUTTON_THREE A2
 #define PIEZO A3
 //#define FLICKER A3
 #define FLASH A5
@@ -45,7 +45,7 @@ long offset = 0;
 bool mute = false;
 
 Adafruit_LIS3DH lis = Adafruit_LIS3DH();
-Adafruit_NeoPixel Pixel(1, 9, NEO_RGB + NEO_KHZ800);
+Adafruit_NeoPixel Pixel(1, 9, NEO_RGB);
 int XYZ() {
   sensors_event_t event;
   lis.getEvent(&event);
@@ -57,7 +57,7 @@ int XYZ() {
   Z = abs(Z);
   Z = Z - offset;
   Z = abs(Z);
-  int XYZ = (X + Y + Z);
+  long XYZ = (X + Y + Z);
   XYZ = XYZ / 3;
 
   return XYZ;
@@ -152,7 +152,7 @@ void loop() {
   }
   reading = avg / 20;
 
-  int blue = XYZ();
+  long blue = XYZ();
   Serial.println(blue);
   //Serial.print(" , ");
   //blue = blue - offset;
